@@ -13,7 +13,7 @@ import com.watoydo.utils.Maths;
 
 public class AiCollection {
 
-	private static final int LOGIC_DELAY = 1;
+	private static final int LOGIC_DELAY = 3;
 	
 	private static final int CROWD = 3;
 	private static final int LONELY = 1;
@@ -149,16 +149,24 @@ public class AiCollection {
 		if(logicTime <= 0) {
 			logicTime = LOGIC_DELAY;
 			
-			for (Ai ai : aiList) {
+			Ai[] aiArray = aiList.toArray(new Ai[aiList.size()]);
+			
+			for (Ai ai : aiArray) {
 				ai.applyRules(map.getGridView(ai));
 			}
 		}
 		else {
-			for (Ai ai : aiList) {
+			
+			Ai[] aiArray = aiList.toArray(new Ai[aiList.size()]);
+			
+			for (Ai ai : aiArray) {
 				ai.act();
 			}
-			for (ImmortalityBlob ai : blobs) {
-				ai.act();
+			
+			ImmortalityBlob[] imArray = blobs.toArray(new ImmortalityBlob[blobs.size()]);
+			
+			for (ImmortalityBlob blob : imArray) {
+				blob.act();
 			}
 		}
 		

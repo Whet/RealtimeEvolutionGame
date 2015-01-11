@@ -70,7 +70,7 @@ public class GameWindow extends JFrame {
 		this.map = map;
 		this.aiCollection = new AiCollection(map);
 		
-		final Timer aiTimer = new Timer(50, new ActionListener() {
+		final Timer aiTimer = new Timer(10, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				aiCollection.applyRules(map);
