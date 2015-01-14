@@ -3,6 +3,7 @@ package com.watoydo.evoGame.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -22,6 +23,7 @@ import com.watoydo.evoGame.ai.Ai;
 import com.watoydo.evoGame.ai.AiCollection;
 import com.watoydo.evoGame.world.WorldMap;
 import com.watoydo.evoGame.world.WorldStates;
+import com.watoydo.utils.Maths;
 
 public class GameWindow extends JFrame {
 	
@@ -36,11 +38,14 @@ public class GameWindow extends JFrame {
 	
 	private double scale;
 	
+	private double[] panning;
+	
 	public GameWindow(WorldMap map) {
 		
 		setIgnoreRepaint(true);
 		this.setTitle("Game View");
 		this.scale = 1;
+		this.panning = new double[]{0,0};
 		
 		this.addKeyListener(new KeyAdapter() {
 			@Override
@@ -94,7 +99,7 @@ public class GameWindow extends JFrame {
 		dBuffer.fillRect(0, 0, this.getWidth(), this.getHeight());
 		
 		AffineTransform affineTransform = new AffineTransform();
-		affineTransform.setToTranslation(50, 50);
+		affineTransform.setToTranslation(panning[0], panning[1]);
 		dBuffer.setTransform(affineTransform);
 		
 		drawMap(dBuffer);
@@ -192,6 +197,14 @@ public class GameWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				frame.repaint();
+				
+				Point mousePosition = frame.getMousePosition();
+				
+				if(mousePosition == null || Maths.getDistance(mousePosition.x, mousePosition.y, frame.getWidth() / 2, frame.getHeight() / 2) < 50)
+					return;
+				
+				frame.panning[0] -= (mousePosition.x - frame.getWidth() / 2) * 0.1;
+				frame.panning[1] -= (mousePosition.y - frame.getHeight() / 2) * 0.1;
 			}
 		});
 		
