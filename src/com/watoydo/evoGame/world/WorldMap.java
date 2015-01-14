@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.watoydo.evoGame.ai.Ai;
-import com.watoydo.evoGame.ai.ImmortalityBlob;
+import com.watoydo.evoGame.ai.WorldBlob;
 import com.watoydo.utils.Maths;
 
 public class WorldMap {
@@ -21,12 +21,12 @@ public class WorldMap {
 	public static final int VIEW_SIZE = 20;
 	public WorldStates[][] worldBlocks;
 	private Map<int[], Ai> aiLocations;
-	private Map<int[], ImmortalityBlob> blobLocations;
+	private Map<int[], WorldBlob> blobLocations;
 
 	public WorldMap(String mapFile) throws IOException {
 		this.hardCodedBlocks(mapFile);
 		this.aiLocations = new HashMap<int[], Ai>();
-		this.blobLocations = new HashMap<int[], ImmortalityBlob>();
+		this.blobLocations = new HashMap<int[], WorldBlob>();
 	}
 	
 	public int[][][] getGridView(Ai ai) {
@@ -77,7 +77,7 @@ public class WorldMap {
 						states.add(WorldStates.AI);
 					
 					if(hasBlob(new int[]{result.x, result.y}))
-						states.add(WorldStates.IMMORTAL);
+						states.add(getBlob(new int[]{result.x, result.y}));
 					
 					worldView[i][j] = worldToArray(states.toArray(new WorldStates[states.size()]));
 				}
@@ -102,8 +102,14 @@ public class WorldMap {
 				case OCCUPIED:
 					dimension[0] = WorldStates.OCCUPIED.getCode();
 				break;
-				case IMMORTAL:
-					dimension[1] = WorldStates.IMMORTAL.getCode();
+				case IMMORTAL1:
+					dimension[1] = WorldStates.IMMORTAL1.getCode();
+				break;
+				case IMMORTAL2:
+					dimension[1] = WorldStates.IMMORTAL2.getCode();
+				break;
+				case IMMORTAL3:
+					dimension[1] = WorldStates.IMMORTAL3.getCode();
 				break;
 				case AI:
 					dimension[2] = WorldStates.AI.getCode();
@@ -135,9 +141,9 @@ public class WorldMap {
 		}
 	}
 	
-	public void setBlobLocations(List<ImmortalityBlob> blobs) {
+	public void setBlobLocations(List<WorldBlob> blobs) {
 		this.blobLocations.clear();
-		for(ImmortalityBlob ai:blobs) {
+		for(WorldBlob ai:blobs) {
 			this.blobLocations.put(new int[]{(int) ai.getX(), (int) ai.getY()}, ai);
 		}
 	}
@@ -191,11 +197,28 @@ public class WorldMap {
 	}
 	
 	public boolean hasBlob(int[] location) {
-		for(Entry<int[], ImmortalityBlob> entry:this.blobLocations.entrySet()) {
-			if(Maths.getDistance(location, entry.getKey()) < ImmortalityBlob.SIZE)
+		for(Entry<int[], WorldBlob> entry:this.blobLocations.entrySet()) {
+			if(Maths.getDistance(location, entry.getKey()) < WorldBlob.SIZE)
 				return true;
 		}
 		return false;
+	}
+	
+	public WorldStates getBlob(int[] location) {
+		for(Entry<int[], WorldBlob> entry:this.blobLocations.entrySet()) {
+			if(Maths.getDistance(location, entry.getKey()) < WorldBlob.SIZE)
+				return entry.getValue().getType();
+		}
+		return null;
+	}
+
+	public WorldStates[] getBlobs(int[] location) {
+		List<WorldStates> states = new ArrayList<WorldStates>();
+		for(Entry<int[], WorldBlob> entry:this.blobLocations.entrySet()) {
+			if(Maths.getDistance(location, entry.getKey()) < WorldBlob.SIZE)
+				states.add(entry.getValue().getType());
+		}
+		return states.toArray(new WorldStates[states.size()]);
 	}
 
 

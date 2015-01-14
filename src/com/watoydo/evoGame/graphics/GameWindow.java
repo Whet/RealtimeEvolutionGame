@@ -133,7 +133,7 @@ public class GameWindow extends JFrame {
 					worldState = WorldStates.AI;
 				
 				if(map.hasBlob(new int[]{i,j}))
-					worldState = WorldStates.IMMORTAL;
+					worldState = map.getBlob(new int[]{i,j});
 				
 				switch (worldState) {
 					case EMPTY:
@@ -145,7 +145,13 @@ public class GameWindow extends JFrame {
 					case DEFAULT:
 						g.setColor(Color.pink);
 					break;
-					case IMMORTAL:
+					case IMMORTAL1:
+						g.setColor(Color.green.darker().darker());
+					break;
+					case IMMORTAL2:
+						g.setColor(Color.green.darker());
+					break;
+					case IMMORTAL3:
 						g.setColor(Color.green);
 					break;
 					case AI:

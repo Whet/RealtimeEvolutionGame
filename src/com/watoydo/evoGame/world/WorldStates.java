@@ -4,7 +4,7 @@ import java.util.Random;
 
 public enum WorldStates {
 
-	OCCUPIED(1), EMPTY(0), IMMORTAL(20), DEFAULT(0), AI(20);
+	OCCUPIED(1), EMPTY(0), IMMORTAL1(10), IMMORTAL2(20), IMMORTAL3(30), DEFAULT(0), AI(20);
 
 	private int code;
 
@@ -23,8 +23,13 @@ public enum WorldStates {
 			return OCCUPIED;
 		}
 		else if(dimension == 1) {
-			if(random.nextBoolean())
-				return IMMORTAL;
+			int rand = random.nextInt(4);
+			if(rand == 0)
+				return IMMORTAL1;
+			else if(rand == 1)
+				return  IMMORTAL2;
+			else if(rand == 2)
+				return IMMORTAL3;
 			return DEFAULT;
 		}
 		else if(dimension == 2) {
@@ -54,8 +59,6 @@ public enum WorldStates {
 	public static WorldStates parseState(String string) {
 		if(string.equals("WorldStates.OCCUPIED"))
 			return WorldStates.OCCUPIED;
-		else if(string.equals("WorldStates.IMMORTAL"))
-			return WorldStates.IMMORTAL;
 		return WorldStates.DEFAULT;
 	}
 

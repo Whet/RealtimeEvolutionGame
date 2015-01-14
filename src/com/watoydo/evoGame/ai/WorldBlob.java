@@ -2,16 +2,20 @@ package com.watoydo.evoGame.ai;
 
 import java.util.Random;
 
+import com.watoydo.evoGame.world.WorldStates;
 import com.watoydo.utils.Maths;
 
-public class ImmortalityBlob {
+public class WorldBlob {
 
 	public static final double SIZE = 10;
+
+	private WorldStates state;
 	private int x, y;
 	
-	public ImmortalityBlob(int x, int y) {
+	public WorldBlob(WorldStates state, int x, int y) {
 		this.x = x;
 		this.y = y;
+		this.state = state;
 	}
 	
 	public void act() {
@@ -42,6 +46,10 @@ public class ImmortalityBlob {
 	
 	public int getY() {
 		return y;
+	}
+
+	public WorldStates getType() {
+		return this.state;
 	}
 	
 }

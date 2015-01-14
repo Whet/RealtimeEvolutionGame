@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.watoydo.evoGame.ai.emotion.DesireSatisfaction;
 import com.watoydo.evoGame.ai.rules.MovementRule;
 import com.watoydo.evoGame.ai.rules.RotationRule;
 import com.watoydo.evoGame.ai.rules.Rule;
@@ -29,6 +30,8 @@ public class Ai {
 	private Color colour;
 	private int life;
 	
+	private DesireSatisfaction desire;
+	
 	public Ai(WorldMap map) {
 		
 		this.map = map;
@@ -42,6 +45,8 @@ public class Ai {
 		this.rules = new HashSet<>();
 		
 		this.colour = Color.red;
+		
+		this.desire = new DesireSatisfaction();
 	}
 	
 	public Ai(WorldMap map, List<Rule> rules) {
@@ -61,6 +66,7 @@ public class Ai {
 		
 		this.colour = Color.red;
 		
+		this.desire = new DesireSatisfaction();
 	}
 	
 	public Set<Rule> getRules() {
@@ -99,8 +105,51 @@ public class Ai {
 	}
 	
 	public void act() {
+		handleSatisfaction(this.getWorldState());
 		move();
 		this.life++;
+	}
+
+	private WorldStates[] getWorldState() {
+		
+		List<WorldStates> states = new ArrayList<WorldStates>();
+		
+		states.add(this.getWorldLocation());
+		
+		for(WorldStates state:this.map.getBlobs(new int[]{(int) this.getX(), (int) this.getY()})) {
+			states.add(state);
+		}
+		
+		return states.toArray(new WorldStates[states.size()]);
+	}
+
+	private void handleSatisfaction(WorldStates[] currentWorldState) {
+		
+		if(Math.random() < DesireSatisfaction.DESIRE_DECREASE_RATE)
+			this.desire.modSatisfaction(0, -1);
+		if(Math.random() < DesireSatisfaction.DESIRE_DECREASE_RATE)
+			this.desire.modSatisfaction(1, -1);
+		if(Math.random() < DesireSatisfaction.DESIRE_DECREASE_RATE)
+			this.desire.modSatisfaction(2, -1);
+		
+		for(WorldStates state:currentWorldState) {
+			switch(state) {
+				case IMMORTAL1:
+					this.desire.modSatisfaction(0, 1);
+				break;
+				case IMMORTAL2:
+					this.desire.modSatisfaction(1, 1);
+				break;
+				case IMMORTAL3:
+					this.desire.modSatisfaction(2, 1);
+				break;
+				default:
+				break;
+			}
+		}
+		
+		this.setColour(new Color(this.desire.getSatisfaction()[0], this.desire.getSatisfaction()[1], this.desire.getSatisfaction()[2]));
+		
 	}
 
 	private void move() {
@@ -207,16 +256,8 @@ public class Ai {
 		return this.map.getGridValue(this.getX(), this.getY());
 	}
 
-	public void setMood(int i) {
-		if(i == -1) {
-			this.colour = Color.BLUE;
-		}
-		else if(i == 0) {
-			this.colour = Color.green.darker();
-		}
-		else if(i == 1) {
-			this.colour = Color.RED;
-		}
+	public void setColour(Color colour) {
+		this.colour = colour;
 	}
 
 	public Color getColour() {
@@ -225,6 +266,14 @@ public class Ai {
 	
 	public int getLifetime() {
 		return this.life;
+	}
+
+	public boolean dying() {
+		return this.desire.dying();
+	}
+
+	public boolean wantsToBreed() {
+		return this.desire.wantsToBreed();
 	}
 	
 }

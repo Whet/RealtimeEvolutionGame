@@ -15,21 +15,13 @@ public class AiCollection {
 
 	private static final int LOGIC_DELAY = 3;
 	
-	private static final int CROWD = 3;
-	private static final int LONELY = 1;
-	
 	private static final double BREED_RATE = 0.1;
-	
-	private static final double CROWDED_DEATH_RATE = 0.08;
-	private static final double LONELY_DEATH_RATE = 0.05;
-	private static final double CONTENT_DEATH_RATE = 0.01;
-	private static final double GREEN_DEATH_RATE = 0;
 	
 	private static final int MAX_POP = 100;
 	
 	private WorldMap map;
 	
-	private List<ImmortalityBlob> blobs;
+	private List<WorldBlob> blobs;
 	private List<Ai> aiList;
 	private int logicTime;
 	
@@ -37,14 +29,17 @@ public class AiCollection {
 	
 	public AiCollection(WorldMap map) {
 		this.aiList = new ArrayList<Ai>();
-		this.blobs = new ArrayList<ImmortalityBlob>();
+		this.blobs = new ArrayList<WorldBlob>();
 		this.logicTime = 0;
 		this.map = map;
 		
-		for(int i = 0; i < 3; i++) {
-			ImmortalityBlob immortalityBlob = new ImmortalityBlob(new Random().nextInt(this.map.worldBlocks.length), new Random().nextInt(this.map.worldBlocks[0].length));
-			this.blobs.add(immortalityBlob);
-		}
+		WorldBlob immortalityBlob1 = new WorldBlob(WorldStates.IMMORTAL1, new Random().nextInt(this.map.worldBlocks.length), new Random().nextInt(this.map.worldBlocks[0].length));
+		this.blobs.add(immortalityBlob1);
+		WorldBlob immortalityBlob2 = new WorldBlob(WorldStates.IMMORTAL2, new Random().nextInt(this.map.worldBlocks.length), new Random().nextInt(this.map.worldBlocks[0].length));
+		this.blobs.add(immortalityBlob2);
+		WorldBlob immortalityBlob3 = new WorldBlob(WorldStates.IMMORTAL3, new Random().nextInt(this.map.worldBlocks.length), new Random().nextInt(this.map.worldBlocks[0].length));
+		this.blobs.add(immortalityBlob3);
+		
 		this.lifetimes = new LinkedList<Integer>();
 	}
 	
@@ -74,7 +69,7 @@ public class AiCollection {
 			
 			for(Ai ai1:listCopy) {
 				for(Ai ai2:listCopy1) {
-					if(ai1 != ai2 && Math.random() < BREED_RATE && Maths.getDistance(ai1.getX(), ai1.getY(), ai2.getX(), ai2.getY()) < Ai.BREED) {
+					if(ai1 != ai2 && ai1.wantsToBreed() && Math.random() < BREED_RATE && Maths.getDistance(ai1.getX(), ai1.getY(), ai2.getX(), ai2.getY()) < Ai.BREED) {
 						populate(ai1, ai2);
 						
 						if (getPopulationCount() > MAX_POP) {
@@ -91,33 +86,7 @@ public class AiCollection {
 		while(iterator.hasNext()) {
 			Ai next = iterator.next();
 			
-			int crowded = 0;
-			
-			Ai[] listCopy = aiList.toArray(new Ai[aiList.size()]);
-			for(Ai ai:listCopy) {
-				if(next != ai && Maths.getDistance(ai.getX(), ai.getY(), next.getX(), next.getY()) < Ai.BREED)
-					crowded++;
-			}
-			
-			if(crowded > CROWD)
-				next.setMood(1);
-			else if(crowded < LONELY)
-				next.setMood(-1);
-			else
-				next.setMood(0);
-			
-			WorldStates worldLocation = next.getWorldLocation();
-			
-			if(map.hasBlob(new int[]{(int)next.getX(), (int)next.getY()}))
-				worldLocation = WorldStates.IMMORTAL;
-			
-			if(worldLocation == WorldStates.IMMORTAL && Math.random() < GREEN_DEATH_RATE)
-				killMember(next, iterator);
-			else if(crowded > CROWD && worldLocation != WorldStates.IMMORTAL && Math.random() < CROWDED_DEATH_RATE)
-				killMember(next, iterator);
-			else if(crowded < LONELY && worldLocation != WorldStates.IMMORTAL && Math.random() < LONELY_DEATH_RATE)
-				killMember(next, iterator);
-			else if(crowded <= CROWD && crowded >= LONELY && worldLocation != WorldStates.IMMORTAL && Math.random() < CONTENT_DEATH_RATE)
+			if(next.dying())
 				killMember(next, iterator);
 		}
 	}
@@ -163,9 +132,9 @@ public class AiCollection {
 				ai.act();
 			}
 			
-			ImmortalityBlob[] imArray = blobs.toArray(new ImmortalityBlob[blobs.size()]);
+			WorldBlob[] imArray = blobs.toArray(new WorldBlob[blobs.size()]);
 			
-			for (ImmortalityBlob blob : imArray) {
+			for (WorldBlob blob : imArray) {
 				blob.act();
 			}
 		}
